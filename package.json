@@ -1,39 +1,38 @@
 {
    "name": "smita-logistic",
-  "version": "2.0.0",
-  "description": "SmitaLogistic — EJS + MongoDB + Delhivery",
-  "main": "server.js",
-  
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SortedBro/SmitaLogistic.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/SortedBro/SmitaLogistic/issues"
-  },
-  "homepage": "https://github.com/SortedBro/SmitaLogistic#readme",
-  "dependencies": {
-    "axios": "^1.6.0",
-    "bcryptjs": "^2.4.3",
-    "connect-flash": "^0.1.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "mongoose": "^8.0.0",
-    "ejs": "^3.1.9",
-    "method-override": "^3.0.0"
-
-     },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
-  }
+   "version": "2.0.0",
+   "description": "SmitaLogistic — EJS + MongoDB + Delhivery",
+   "main": "server.js",
+   "scripts": {
+      "start": "node server.js",
+      "dev": "nodemon server.js"
+   },
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/SortedBro/SmitaLogistic.git"
+   },
+   "keywords": [],
+   "author": "",
+   "license": "ISC",
+   "type": "commonjs",
+   "bugs": {
+      "url": "https://github.com/SortedBro/SmitaLogistic/issues"
+   },
+   "homepage": "https://github.com/SortedBro/SmitaLogistic#readme",
+   "dependencies": {
+      "axios": "^1.6.0",
+      "bcryptjs": "^2.4.3",
+      "connect-flash": "^0.1.1",
+      "cors": "^2.8.5",
+      "dotenv": "^16.3.1",
+      "ejs": "^3.1.9",
+      "express": "^4.18.2",
+      "express-session": "^1.17.3",
+      "method-override": "^3.0.0",
+      "mongodb": "^7.1.0",
+      "mongoose": "^8.0.0"
+   },
+   "devDependencies": {
+      "nodemon": "^3.0.2"
+   }
 }

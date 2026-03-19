@@ -53,6 +53,7 @@ app.use((req, res, next) => {
 // ── Routes ────────────────────────────────────
 app.use('/',       pageRoutes);
 app.use('/admin',  adminRoutes);
+app.get('/ping', (req, res) => res.send('pong'));
 
 // ── 404 Handler ───────────────────────────────
 app.use((req, res) => {
