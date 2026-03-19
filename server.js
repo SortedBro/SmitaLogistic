@@ -14,6 +14,7 @@ const path           = require('path');
 const connectDB      = require('./config/db');
 const pageRoutes     = require('./routes/pages');
 const adminRoutes    = require('./routes/admin');
+const settingsRoutes = require('./routes/settings');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -51,9 +52,10 @@ app.use((req, res, next) => {
 });
 
 // ── Routes ────────────────────────────────────
+app.get('/ping', (req, res) => res.send('pong'));
 app.use('/',       pageRoutes);
 app.use('/admin',  adminRoutes);
-app.get('/ping', (req, res) => res.send('pong'));
+app.use('/admin/settings', settingsRoutes);
 
 // ── 404 Handler ───────────────────────────────
 app.use((req, res) => {
@@ -73,7 +75,7 @@ app.use((err, req, res, next) => {
 });
 
 // ── Start ─────────────────────────────────────
-app.listen(PORT,'0.0.0.0' ,() => {
+app.listen(PORT, () => {
   console.log('\n🚚 ══════════════════════════════════════');
   console.log(`   SmitaLogistic Server Started`);
   console.log(`   URL     : http://localhost:${PORT}`);

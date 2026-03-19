@@ -117,4 +117,54 @@ function nextPickupTime() {
   return d.toISOString().replace('T', ' ').slice(0, 16);
 }
 
-module.exports = { checkPincode, createShipment, trackShipment };
+module.exports = { checkPincode, createShipment, trackShipment, calculateRate };
+
+// ── Calculate Shipping Rate ───────────────────
+async function calculateRate(order) {
+  try {
+    const billableWeight = Math.max(
+      parseFloat(order.weight) || 0,
+      (((order.length||10) * (order.breadth||10) * (order.height||10)) / 5000)
+    );
+    const r = await axios.get(`${BASE()}/api/kinko/v2/estimate/`, {
+      params: {
+        md        : 'S',
+        cgm       : Math.ceil(billableWeight * 1000),
+        o_pin     : order.senderPin,
+        d_pin     : order.receiverPin,
+        ss        : 'Delivered',
+        cod       : order.paymentMode === 'COD' ? 1 : 0,
+        cod_amount: order.paymentMode === 'COD' ? (order.codAmount||0) : 0,
+      },
+      headers: headers()
+    });
+    const data           = r.data;
+    const delhiveryCost  = parseFloat(data?.total_amount || data?.charged_amount || 0);
+    const margin         = parseFloat(process.env.SHIPPING_MARGIN || 50);
+    const suggestedPrice = Math.ceil(delhiveryCost + margin);
+    return { success: true, delhiveryCost, margin, suggestedPrice, billableWeight: billableWeight.toFixed(2), isFallback: false };
+  } catch (err) {
+    return fallbackRate(order);
+  }
+}
+
+function fallbackRate(order) {
+  const w = Math.max(
+    parseFloat(order.weight) || 0,
+    (((order.length||10) * (order.breadth||10) * (order.height||10)) / 5000)
+  );
+  const margin = parseFloat(process.env.SHIPPING_MARGIN || 50);
+  let base = 0;
+  if      (w <= 0.5) base = 55;
+  else if (w <= 1)   base = 70;
+  else if (w <= 2)   base = 95;
+  else if (w <= 3)   base = 120;
+  else if (w <= 5)   base = 160;
+  else if (w <= 10)  base = 220;
+  else if (w <= 20)  base = 350;
+  else               base = Math.ceil(w * 18);
+  const codCharge     = order.paymentMode === 'COD' ? Math.ceil((order.codAmount||0) * 0.018 + 30) : 0;
+  const delhiveryCost = base + codCharge;
+  const suggestedPrice = Math.ceil(delhiveryCost + margin);
+  return { success: true, delhiveryCost, margin, suggestedPrice, billableWeight: w.toFixed(2), codCharge, isFallback: true };
+}

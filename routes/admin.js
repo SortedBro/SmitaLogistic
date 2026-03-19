@@ -4,7 +4,8 @@ const axios      = require('axios');
 const Order      = require('../models/Order');
 const Contact    = require('../models/Contact');
 const adminAuth  = require('../middleware/adminAuth');
-const delhivery  = require('../config/delhivery');
+const delhivery  = require("../config/delhivery");
+const { calculateFinalPrice } = require("../config/pricing");
 
 router.get('/login', (req, res) => {
   if (req.session.isAdmin) return res.redirect('/admin');
@@ -172,5 +173,38 @@ async function sendWhatsApp(phone, message) {
     console.log(`✅ WhatsApp sent to +${cleanPhone}`);
   } catch (err) { console.error('WhatsApp error:', err.message); }
 }
+
+// ── RATE CALCULATOR API ──────────────────────
+router.get("/orders/:id/rate", adminAuth, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.json({ success: false, error: "Order not found" });
+
+    // Get Delhivery base cost
+    const baseRate = await delhivery.calculateRate(order);
+
+    // Apply pricing engine (global settings + optional overrides)
+    const overrides = {
+      fixedMargin: req.query.fixedMargin,
+      pctMargin  : req.query.pctMargin
+    };
+    const pricing = await calculateFinalPrice(baseRate.delhiveryCost, overrides);
+
+    res.json({
+      success        : true,
+      billableWeight : baseRate.billableWeight,
+      delhiveryCost  : pricing.delhiveryCost,
+      fixedMargin    : pricing.fixedMargin,
+      pctMargin      : pricing.pctMargin,
+      pctAmount      : pricing.pctAmount,
+      totalMargin    : pricing.totalMargin,
+      suggestedPrice : pricing.finalPrice,
+      codCharge      : baseRate.codCharge || 0,
+      isFallback     : baseRate.isFallback || false
+    });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
 
 module.exports = router;
