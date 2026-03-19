@@ -1,0 +1,105 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>🔍 Track Your Parcel</h1>
+    <p>AWB number ya SmitaLogistic reference ID daalo.</p>
+  </div>
+</div>
+
+<section class="section-dark">
+  <div class="container">
+    <div class="track-center">
+
+      <!-- Search Form -->
+      <form action="/track" method="POST" class="track-form">
+        <div class="track-input-wrap">
+          <input type="text" name="trackId" placeholder="AWB / Reference ID e.g. SML1234567890"
+            value="<%= query %>" required/>
+          <button type="submit" class="btn-primary">Track →</button>
+        </div>
+        <div class="track-demo-ids">
+          <span style="color:var(--muted);font-size:.8rem">Demo:</span>
+          <% ['SML2024031901','SML2024031902'].forEach(id => { %>
+            <a href="/track" onclick="document.querySelector('[name=trackId]').value='<%= id %>';this.closest('form').submit();return false" class="demo-id"><%= id %></a>
+          <% }) %>
+        </div>
+      </form>
+
+      <%- include('../partials/flash') %>
+
+      <% if (tracking) { %>
+      <!-- TRACKING RESULT -->
+      <div class="track-card">
+
+        <!-- Header -->
+        <div class="tc-header">
+          <div>
+            <div class="tc-waybill-label">Waybill / AWB Number</div>
+            <div class="tc-waybill"><%= tracking.waybill %></div>
+          </div>
+          <div class="status-pill status-<%= (tracking.status||'').toLowerCase().replace(/\s+/g,'-') %>">
+            <%= tracking.status || 'In Transit' %>
+          </div>
+        </div>
+
+        <!-- Route -->
+        <div class="tc-route">
+          <div class="tc-city">
+            <div class="tc-city-label">From</div>
+            <div class="tc-city-name"><%= tracking.origin || '—' %></div>
+          </div>
+          <div class="tc-arrow">
+            <div class="tc-arrow-line"></div>
+            <span>🚚</span>
+            <div class="tc-arrow-line"></div>
+          </div>
+          <div class="tc-city tc-city-right">
+            <div class="tc-city-label">To</div>
+            <div class="tc-city-name"><%= tracking.destination || '—' %></div>
+          </div>
+          <% if (tracking.expectedDate) { %>
+          <div class="tc-eta">
+            <div class="tc-city-label">Expected Delivery</div>
+            <div class="tc-city-name" style="color:var(--accent)"><%= tracking.expectedDate %></div>
+          </div>
+          <% } %>
+        </div>
+
+        <!-- Timeline -->
+        <div class="tl-title-row">📍 Shipment Timeline</div>
+        <div class="timeline">
+          <% if (tracking.timeline && tracking.timeline.length > 0) { %>
+            <% const icons = {pickup:'🚗',transit:'🚚',ofd:'📍',delivered:'✅',failed:'❌',return:'↩️',info:'📋'}; %>
+            <% tracking.timeline.forEach((item, i) => { %>
+              <div class="tl-item <%= i===tracking.timeline.length-1 ? 'tl-current' : 'tl-done' %>">
+                <div class="tl-left">
+                  <div class="tl-dot <%= i===tracking.timeline.length-1 ? 'dot-current' : item.type==='failed' ? 'dot-failed' : 'dot-done' %>"></div>
+                  <% if (i < tracking.timeline.length-1) { %><div class="tl-line"></div><% } %>
+                </div>
+                <div class="tl-body">
+                  <div class="tl-status"><%= icons[item.type] || '📋' %> <%= item.status %></div>
+                  <% if (item.instruction) { %><div class="tl-instruction"><%= item.instruction %></div><% } %>
+                  <% if (item.location) { %><div class="tl-location">📍 <%= item.location %></div><% } %>
+                  <% if (item.time) { %><div class="tl-time">🕐 <%= new Date(item.time).toLocaleString('en-IN') %></div><% } %>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="tl-empty">No scan data yet. Parcel abhi processing mein hai.</div>
+          <% } %>
+        </div>
+
+        <div class="tc-footer">
+          <a href="/book" class="btn-outline">📦 Book Another Parcel</a>
+          <a href="/contact" class="btn-outline">📞 Need Help?</a>
+        </div>
+      </div>
+      <% } %>
+
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,193 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>📦 Book a Shipment</h1>
+    <p>Sender aur receiver ka details bharo — hum Delhivery ke through AWB generate karenge.</p>
+  </div>
+</div>
+
+<section class="section-dark">
+  <div class="container">
+    <%- include('../partials/flash') %>
+
+    <% if (typeof awaitingApproval !== 'undefined' && awaitingApproval && order) { %>
+    <!-- AWAITING APPROVAL STATE -->
+    <div class="awaiting-box">
+      <div class="awaiting-icon">📋</div>
+      <h2>Order Received!</h2>
+      <p>Aapka order hamare paas aa gaya hai. Hum aapko <strong>call karenge</strong>, price confirm karenge, aur tab AWB generate hoga.</p>
+      <div class="ref-box">
+        <div class="ref-label">Your Reference Number</div>
+        <div class="ref-num"><%= order.reference %></div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:4px">Yeh save kar lo — tracking ke liye zaroori hai</div>
+      </div>
+      <div class="steps-mini">
+        <div class="step-mini"><span class="sm-num">1</span> ✅ Order hamare system mein save ho gaya</div>
+        <div class="step-mini"><span class="sm-num">2</span> ⏳ Hum aapko call karenge — <strong><%= order.senderPhone %></strong></div>
+        <div class="step-mini"><span class="sm-num">3</span> 💰 Price confirm hoga, payment karein</div>
+        <div class="step-mini"><span class="sm-num">4</span> 📦 AWB generate hoga, WhatsApp aayega</div>
+        <div class="step-mini"><span class="sm-num">5</span> 🚗 Delhivery pickup aayega</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px">
+        <a href="/track" class="btn-outline">🔍 Track with Reference</a>
+        <a href="/book" class="btn-primary">📦 Book Another</a>
+      </div>
+    </div>
+    <% } else if (order && order.waybill) { %>
+    <!-- SUCCESS (already approved) -->
+    <div class="success-box">
+      <div class="success-icon">🎉</div>
+      <h2>Shipment Booked!</h2>
+      <p>Aapka parcel Delhivery network mein register ho gaya hai.</p>
+      <div class="awb-box">
+        <div class="awb-label">AWB / Tracking Number</div>
+        <div class="awb-num"><%= order.waybill %></div>
+        <div class="awb-ref">Reference: <%= order.reference %></div>
+      </div>
+      <div class="success-details">
+        <div class="sd-row"><span>From</span><strong><%= order.senderName %>, <%= order.senderCity %></strong></div>
+        <div class="sd-row"><span>To</span><strong><%= order.receiverName %>, <%= order.receiverCity %>, <%= order.receiverState %></strong></div>
+        <div class="sd-row"><span>Weight</span><strong><%= order.weight %> kg</strong></div>
+        <div class="sd-row"><span>Payment</span><strong><%= order.paymentMode %><% if(order.paymentMode==='COD') { %> (₹<%= order.codAmount %>)<% } %></strong></div>
+        <div class="sd-row"><span>Pickup</span><strong>Kal subah 10 baje (Next Business Day)</strong></div>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px">
+        <a href="/track?q=<%= order.waybill %>" class="btn-primary">🔍 Track This Parcel</a>
+        <a href="/book" class="btn-outline">📦 Book Another</a>
+      </div>
+    </div>
+    <% } else { %>
+    <!-- BOOKING FORM -->
+    <form action="/book" method="POST" id="book-form">
+      <div class="form-grid">
+
+        <!-- Left Column -->
+        <div class="form-col">
+          <div class="form-card">
+            <h3>📤 Sender Details (Aap)</h3>
+            <div class="form-row-2">
+              <div class="fg"><label>Name *</label><input type="text" name="senderName" placeholder="Aapka naam" required/></div>
+              <div class="fg"><label>Phone *</label><input type="tel" name="senderPhone" placeholder="9XXXXXXXXX" maxlength="10" required/></div>
+            </div>
+            <div class="fg"><label>Full Address *</label><input type="text" name="senderAddress" placeholder="Ghar ka pura pata" required/></div>
+            <div class="form-row-2">
+              <div class="fg"><label>City</label><input type="text" name="senderCity" value="Malda" placeholder="Malda"/></div>
+              <div class="fg"><label>Pincode *</label><input type="number" name="senderPin" placeholder="732101" maxlength="6" required/></div>
+            </div>
+          </div>
+
+          <div class="form-card" style="margin-top:20px">
+            <h3>📥 Receiver Details</h3>
+            <div class="form-row-2">
+              <div class="fg"><label>Name *</label><input type="text" name="receiverName" placeholder="Receiver naam" required/></div>
+              <div class="fg"><label>Phone *</label><input type="tel" name="receiverPhone" placeholder="9XXXXXXXXX" maxlength="10" required/></div>
+            </div>
+            <div class="fg"><label>Full Address *</label><input type="text" name="receiverAddress" placeholder="Delivery address" required/></div>
+            <div class="form-row-2">
+              <div class="fg"><label>City *</label><input type="text" name="receiverCity" placeholder="Mumbai" required/></div>
+              <div class="fg"><label>State *</label><input type="text" name="receiverState" placeholder="Maharashtra" required/></div>
+            </div>
+            <div class="fg" style="position:relative">
+              <label>Pincode * <span id="pin-badge"></span></label>
+              <input type="number" name="receiverPin" id="recv-pin" placeholder="400001" maxlength="6" required oninput="liveCheckPin(this.value)"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="form-col">
+          <div class="form-card">
+            <h3>📦 Parcel Details</h3>
+            <div class="form-row-2">
+              <div class="fg"><label>Weight (kg) *</label><input type="number" name="weight" id="f-weight" placeholder="0.5" step="0.1" min="0.1" oninput="calcVol()" required/></div>
+              <div class="fg"><label>Declared Value (₹)</label><input type="number" name="declaredValue" placeholder="500"/></div>
+            </div>
+            <div class="form-row-3">
+              <div class="fg"><label>Length (cm)</label><input type="number" name="length" id="f-l" placeholder="20" oninput="calcVol()"/></div>
+              <div class="fg"><label>Breadth (cm)</label><input type="number" name="breadth" id="f-b" placeholder="15" oninput="calcVol()"/></div>
+              <div class="fg"><label>Height (cm)</label><input type="number" name="height" id="f-h" placeholder="10" oninput="calcVol()"/></div>
+            </div>
+            <div class="form-row-2">
+              <div class="fg">
+                <label>Payment Mode *</label>
+                <select name="paymentMode" id="pay-mode" onchange="toggleCOD()">
+                  <option value="Prepaid">Prepaid (Online)</option>
+                  <option value="COD">COD (Cash on Delivery)</option>
+                </select>
+              </div>
+              <div class="fg" id="cod-wrap" style="display:none">
+                <label>COD Amount (₹) *</label>
+                <input type="number" name="codAmount" id="cod-amt" placeholder="Amount to collect"/>
+              </div>
+            </div>
+            <div class="fg"><label>Item Description</label><input type="text" name="productDesc" placeholder="e.g. Clothes, Books, Electronics"/></div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="summary-card" style="margin-top:20px">
+            <h3>📋 Order Summary</h3>
+            <div class="sum-row"><span>Volumetric Weight</span><strong id="sum-vol">—</strong></div>
+            <div class="sum-row"><span>Billable Weight</span><strong id="sum-bill">—</strong></div>
+            <div class="sum-row"><span>Payment</span><strong id="sum-pay">Prepaid</strong></div>
+            <div class="sum-row"><span>Pickup</span><strong>Next Business Day, 10 AM</strong></div>
+            <div class="sum-row"><span>Est. Delivery</span><strong style="color:var(--accent)">5–7 Business Days</strong></div>
+            <button type="submit" class="btn-primary btn-full" id="submit-btn">
+              🚀 Confirm & Book Shipment
+            </button>
+            <p class="form-note">* Aapko AWB number milega booking ke baad. Pickup kal schedule hogi.</p>
+          </div>
+        </div>
+
+      </div>
+    </form>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>
+
+<script>
+// Live pincode check
+let pinTimer;
+function liveCheckPin(val){
+  clearTimeout(pinTimer);
+  const badge = document.getElementById('pin-badge');
+  if(val.length===6){
+    badge.textContent='⏳'; badge.className='badge-loading';
+    pinTimer=setTimeout(()=>{
+      fetch(`/api/pincode?pin=${val}`).then(r=>r.json()).then(d=>{
+        badge.textContent = d.deliverable ? '✅ Serviceable' : '❌ Not serviceable';
+        badge.className   = d.deliverable ? 'badge-ok' : 'badge-err';
+      }).catch(()=>{ badge.textContent='⚠️'; });
+    },600);
+  } else { badge.textContent=''; }
+}
+
+// COD toggle
+function toggleCOD(){
+  const isCOD = document.getElementById('pay-mode').value==='COD';
+  document.getElementById('cod-wrap').style.display = isCOD ? 'block' : 'none';
+  document.getElementById('sum-pay').textContent = isCOD ? 'COD' : 'Prepaid';
+}
+
+// Volumetric calc
+function calcVol(){
+  const w=parseFloat(document.getElementById('f-weight').value)||0;
+  const l=parseFloat(document.getElementById('f-l').value)||10;
+  const b=parseFloat(document.getElementById('f-b').value)||10;
+  const h=parseFloat(document.getElementById('f-h').value)||10;
+  const vol=(l*b*h)/5000;
+  const bill=Math.max(w,vol);
+  document.getElementById('sum-vol').textContent  = vol.toFixed(2)+' kg';
+  document.getElementById('sum-bill').textContent = bill.toFixed(2)+' kg';
+}
+
+// Loading state on submit
+document.getElementById('book-form')?.addEventListener('submit',function(){
+  const btn=document.getElementById('submit-btn');
+  btn.textContent='⏳ Booking with Delhivery...';
+  btn.disabled=true;
+});
+</script>

@@ -1,0 +1,55 @@
+<%- include('../partials/head') %>
+
+<div class="admin-layout">
+  <%- include('../partials/admin-sidebar') %>
+  <main class="admin-main">
+
+    <div class="admin-topbar">
+      <h1>💬 Contact Messages</h1>
+      <span style="color:var(--muted);font-size:.85rem"><%= messages.length %> total messages</span>
+    </div>
+
+    <div class="admin-card">
+      <% if (messages.length > 0) { %>
+        <div class="messages-list">
+          <% messages.forEach(m => { %>
+          <div class="msg-card <%= m.read ? '' : 'msg-unread' %>">
+            <div class="msg-header">
+              <div class="msg-from">
+                <div class="msg-avatar"><%= m.name.charAt(0).toUpperCase() %></div>
+                <div>
+                  <div class="msg-name"><%= m.name %> <% if (!m.read) { %><span class="new-badge">NEW</span><% } %></div>
+                  <div class="msg-meta">
+                    <a href="tel:<%= m.phone %>"><%= m.phone %></a>
+                    <% if (m.email) { %> · <a href="mailto:<%= m.email %>"><%= m.email %></a><% } %>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div class="msg-type-badge"><%= m.type || 'General' %></div>
+                <div class="msg-time"><%= m.createdAt.toLocaleString('en-IN') %></div>
+              </div>
+            </div>
+            <div class="msg-body"><%= m.message %></div>
+            <div class="msg-actions">
+              <a href="tel:<%= m.phone %>" class="btn-sm">📞 Call</a>
+              <% if (m.email) { %>
+                <a href="mailto:<%= m.email %>" class="btn-sm">✉️ Reply</a>
+              <% } %>
+              <a href="https://wa.me/91<%= m.phone.replace(/\D/g,'') %>" target="_blank" class="btn-sm" style="color:#25D366">💬 WhatsApp</a>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div style="text-align:center;padding:60px;color:var(--muted)">
+          <div style="font-size:3rem;margin-bottom:12px">💬</div>
+          <div>Koi message nahi hai abhi.</div>
+        </div>
+      <% } %>
+    </div>
+
+  </main>
+</div>
+
+</body></html>

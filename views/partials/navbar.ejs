@@ -1,0 +1,25 @@
+<nav class="navbar">
+  <a href="/" class="logo">Smita<span>Logistic</span><small>Powered by Delhivery</small></a>
+
+  <ul class="nav-links" id="nav-links">
+    <li><a href="/" class="<%= page==='home'?'active':'' %>">Home</a></li>
+    <li><a href="/book" class="<%= page==='book'?'active':'' %>">Book Parcel</a></li>
+    <li><a href="/track" class="<%= page==='track'?'active':'' %>">Track</a></li>
+    <li><a href="/contact" class="<%= page==='contact'?'active':'' %>">Contact</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <a href="/track" class="btn-nav-track">🔍 Track</a>
+    <a href="/book" class="btn-nav-book">📦 Book Now</a>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobile-nav">
+  <a href="/" onclick="closeNav()">🏠 Home</a>
+  <a href="/book" onclick="closeNav()">📦 Book Parcel</a>
+  <a href="/track" onclick="closeNav()">🔍 Track Parcel</a>
+  <a href="/contact" onclick="closeNav()">📞 Contact</a>
+</div>

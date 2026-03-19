@@ -1,0 +1,172 @@
+<%- include('../partials/head') %>
+<div class="admin-layout">
+  <%- include('../partials/admin-sidebar') %>
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <a href="/admin/orders" style="color:var(--muted);font-size:.85rem;text-decoration:none">← Back</a>
+        <h1 style="margin-top:6px">Order: <span style="color:var(--accent)"><%= order.reference %></span></h1>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <span class="approval-badge approval-<%= order.approvalStatus.toLowerCase().replace(/\s+/g,'-') %>">
+          <%if(order.approvalStatus==='Awaiting Approval'){%>⏳<%}%><%if(order.approvalStatus==='Approved'){%>✅<%}%><%if(order.approvalStatus==='Rejected'){%>❌<%}%>
+          <%= order.approvalStatus %>
+        </span>
+        <span class="status-badge status-<%= order.status.toLowerCase().replace(/\s+/g,'-') %>"><%= order.status %></span>
+      </div>
+    </div>
+    <%- include('../partials/flash') %>
+
+    <% if (order.approvalStatus === 'Awaiting Approval') { %>
+    <div class="approval-action-box">
+      <div class="aab-header">
+        <div class="aab-icon">📋</div>
+        <div>
+          <div class="aab-title">Naya Order — Tumhari Approval Chahiye</div>
+          <div class="aab-sub">Customer se call karo → price negotiate karo → Approve ya Reject karo</div>
+        </div>
+      </div>
+      <div class="customer-quick">
+        <div class="cq-item"><span>👤 Sender</span><strong><%= order.senderName %></strong></div>
+        <div class="cq-item"><span>📞 Phone</span><strong><a href="tel:<%= order.senderPhone %>" style="color:var(--accent2)"><%= order.senderPhone %></a></strong></div>
+        <div class="cq-item"><span>💬 WhatsApp</span><strong><a href="https://wa.me/91<%= order.senderPhone.replace(/\D/g,'') %>" target="_blank" style="color:#25D366">Chat Now →</a></strong></div>
+        <div class="cq-item"><span>📦 Weight</span><strong><%= order.weight %> kg</strong></div>
+        <div class="cq-item"><span>📍 Route</span><strong><%= order.senderCity %> → <%= order.receiverCity %></strong></div>
+        <div class="cq-item"><span>💳 Mode</span><strong><span class="pay-badge pay-<%= order.paymentMode.toLowerCase() %>"><%= order.paymentMode %></span></strong></div>
+      </div>
+      <div class="approval-forms">
+        <div class="approve-form-box">
+          <h3>✅ Approve Order</h3>
+          <p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Customer se payment confirm karo, final price set karo.<br/><strong style="color:var(--text)">Auto hoga:</strong> Delhivery AWB + Pickup + WhatsApp customer ko</p>
+          <form action="/admin/orders/<%= order._id %>/approve" method="POST">
+            <div class="fg">
+              <label>Final Price (₹) * — Jo customer se loge</label>
+              <input type="number" name="finalPrice" placeholder="e.g. 150" min="0" required style="font-size:1.1rem;font-weight:600;color:var(--accent)"/>
+            </div>
+            <div class="fg">
+              <label>Admin Note (Optional)</label>
+              <input type="text" name="adminNote" placeholder="e.g. Customer ne 150 mein agree kiya"/>
+            </div>
+            <button type="submit" class="btn-approve" onclick="return confirm('Approve karein? AWB create hoga aur customer ko WhatsApp jayega.')">✅ Approve & Book Shipment</button>
+          </form>
+        </div>
+        <div class="reject-form-box">
+          <h3>❌ Reject Order</h3>
+          <p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Customer ko rejection WhatsApp automatically jayega.</p>
+          <form action="/admin/orders/<%= order._id %>/reject" method="POST">
+            <div class="fg">
+              <label>Rejection Reason *</label>
+              <select name="rejectionReason" required>
+                <option value="">Select reason...</option>
+                <option value="Customer ne price agree nahi kiya">💰 Price agree nahi hua</option>
+                <option value="Delivery address serviceable nahi hai">📍 Address serviceable nahi</option>
+                <option value="Parcel weight limit exceed karta hai">⚖️ Weight limit exceed</option>
+                <option value="Customer reach nahi ho raha">📵 Customer unreachable</option>
+                <option value="Customer ne cancel kar diya">🚫 Customer ne cancel kiya</option>
+                <option value="Duplicate order hai">🔄 Duplicate order</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-reject" onclick="return confirm('Reject karein? Customer ko WhatsApp jayega.')">❌ Reject & Notify Customer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
+    <% if(order.approvalStatus==='Approved') { %>
+    <div class="approved-info-box">
+      <div style="font-size:1.3rem">✅ Order Approved</div>
+      <div style="font-size:.85rem;color:var(--muted);margin-top:4px">
+        <%= order.approvedAt ? new Date(order.approvedAt).toLocaleString('en-IN') : '' %>
+        <% if(order.finalPrice){ %> · Final Price: <strong style="color:var(--accent)">₹<%= order.finalPrice %></strong><% } %>
+        <% if(order.waybill){ %> · AWB: <strong><%= order.waybill %></strong><% } %>
+        <% if(order.notifiedCustomer){ %> · <span style="color:#25D366">📱 WhatsApp Sent</span><% } %>
+      </div>
+      <% if(order.adminNote){ %><div style="margin-top:6px;font-size:.82rem;color:var(--muted)">Note: <%= order.adminNote %></div><% } %>
+    </div>
+    <% } %>
+
+    <% if(order.approvalStatus==='Rejected') { %>
+    <div class="rejected-info-box">
+      <div style="font-size:1.3rem">❌ Order Rejected</div>
+      <div style="font-size:.85rem;color:var(--muted);margin-top:4px">
+        <%= order.rejectedAt ? new Date(order.rejectedAt).toLocaleString('en-IN') : '' %>
+        <% if(order.notifiedCustomer){ %> · <span style="color:#25D366">📱 WhatsApp Sent</span><% } %>
+      </div>
+      <% if(order.rejectionReason){ %><div style="margin-top:6px;font-size:.85rem;color:var(--text)">Reason: <%= order.rejectionReason %></div><% } %>
+    </div>
+    <% } %>
+
+    <div class="order-detail-grid">
+      <div>
+        <div class="admin-card">
+          <div class="ac-header"><h3>📤 Sender</h3><a href="tel:<%= order.senderPhone %>" class="btn-sm">📞 Call</a></div>
+          <div class="detail-rows">
+            <div class="dr"><span>Name</span><strong><%= order.senderName %></strong></div>
+            <div class="dr"><span>Phone</span><strong><a href="tel:<%= order.senderPhone %>"><%= order.senderPhone %></a></strong></div>
+            <div class="dr"><span>Address</span><strong><%= order.senderAddress %></strong></div>
+            <div class="dr"><span>City/Pin</span><strong><%= order.senderCity %> — <%= order.senderPin %></strong></div>
+          </div>
+        </div>
+        <div class="admin-card" style="margin-top:16px">
+          <div class="ac-header"><h3>📥 Receiver</h3></div>
+          <div class="detail-rows">
+            <div class="dr"><span>Name</span><strong><%= order.receiverName %></strong></div>
+            <div class="dr"><span>Phone</span><strong><%= order.receiverPhone %></strong></div>
+            <div class="dr"><span>Address</span><strong><%= order.receiverAddress %></strong></div>
+            <div class="dr"><span>City/State</span><strong><%= order.receiverCity %>, <%= order.receiverState %></strong></div>
+            <div class="dr"><span>Pincode</span><strong><%= order.receiverPin %></strong></div>
+          </div>
+        </div>
+        <div class="admin-card" style="margin-top:16px">
+          <div class="ac-header"><h3>📦 Parcel</h3></div>
+          <div class="detail-rows">
+            <div class="dr"><span>Item</span><strong><%= order.productDesc %></strong></div>
+            <div class="dr"><span>Weight</span><strong><%= order.weight %> kg</strong></div>
+            <div class="dr"><span>Dimensions</span><strong><%= order.length %>×<%= order.breadth %>×<%= order.height %> cm</strong></div>
+            <div class="dr"><span>Declared Value</span><strong>₹<%= order.declaredValue %></strong></div>
+            <div class="dr"><span>Payment</span><strong><span class="pay-badge pay-<%= order.paymentMode.toLowerCase() %>"><%= order.paymentMode %></span><%if(order.paymentMode==='COD'){%> ₹<%= order.codAmount %><%}%></strong></div>
+            <%if(order.finalPrice){%><div class="dr"><span>✅ Final Price</span><strong style="color:var(--accent);font-size:1.1rem">₹<%= order.finalPrice %></strong></div><%}%>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="admin-card">
+          <div class="ac-header"><h3>🔍 Tracking</h3></div>
+          <div class="detail-rows">
+            <div class="dr"><span>Reference</span><code><%= order.reference %></code></div>
+            <div class="dr"><span>AWB</span><%if(order.waybill){%><code style="color:var(--accent)"><%= order.waybill %></code><%}else{%><span style="color:var(--muted)">Approval ke baad milega</span><%}%></div>
+            <div class="dr"><span>Booked At</span><strong><%= order.createdAt.toLocaleString('en-IN') %></strong></div>
+            <div class="dr"><span>WhatsApp</span><strong><%= order.notifiedCustomer?'✅ Sent':'⏳ Pending' %></strong></div>
+          </div>
+          <%if(order.waybill){%><div style="padding:12px 16px"><a href="/track?q=<%= order.waybill %>" target="_blank" class="btn-outline btn-full">🔍 Live Track</a></div><%}%>
+        </div>
+        <%if(order.approvalStatus==='Approved'){%>
+        <div class="admin-card" style="margin-top:16px">
+          <div class="ac-header"><h3>⚙️ Update Status</h3></div>
+          <form action="/admin/orders/<%= order._id %>/status" method="POST" style="padding:16px">
+            <div class="fg"><label>AWB Number</label><input type="text" name="waybill" value="<%= order.waybill||'' %>" placeholder="Delhivery AWB"/></div>
+            <div class="fg"><label>Status</label>
+              <select name="status">
+                <%['Booked','Pickup Scheduled','In Transit','Out for Delivery','Delivered','Failed','Cancelled'].forEach(s=>{%>
+                  <option value="<%= s %>" <%=order.status===s?'selected':''%>><%= s %></option>
+                <%})%>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary btn-full">Update Status</button>
+          </form>
+        </div>
+        <%}%>
+        <div class="admin-card admin-card-danger" style="margin-top:16px">
+          <div class="ac-header"><h3>⚠️ Danger Zone</h3></div>
+          <div style="padding:16px">
+            <form action="/admin/orders/<%= order._id %>/delete" method="POST" onsubmit="return confirm('Delete? Permanent hai.')">
+              <button type="submit" class="btn-danger btn-full">🗑️ Delete Order</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body></html>

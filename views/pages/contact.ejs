@@ -1,0 +1,77 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>📞 Contact Us</h1>
+    <p>Koi sawaal hai? Hum yahan hain — WhatsApp, call, ya form se poochhein.</p>
+  </div>
+</div>
+
+<section class="section-dark">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <div class="contact-grid">
+
+      <!-- Info Side -->
+      <div class="contact-info">
+        <div class="contact-item">
+          <div class="ci-icon">📞</div>
+          <div><div class="ci-label">Phone / WhatsApp</div><div class="ci-value"><a href="tel:+919876543210">+91 98765 43210</a></div></div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">✉️</div>
+          <div><div class="ci-label">Email</div><div class="ci-value"><a href="mailto:info@smitalogistic.in">info@smitalogistic.in</a></div></div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">📍</div>
+          <div><div class="ci-label">Office Address</div><div class="ci-value">Malda, West Bengal — 732101, India</div></div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">🕐</div>
+          <div><div class="ci-label">Working Hours</div><div class="ci-value">Mon–Sat: 9 AM – 7 PM<br/><small>Sunday: 10 AM – 4 PM</small></div></div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">💬</div>
+          <div><div class="ci-label">WhatsApp Business</div>
+            <div class="ci-value"><a href="https://wa.me/919876543210" target="_blank" style="color:#25D366;font-weight:600">Chat on WhatsApp →</a></div>
+          </div>
+        </div>
+
+        <div class="map-placeholder">
+          <div style="font-size:2rem;margin-bottom:8px">🗺️</div>
+          <div style="font-weight:600;margin-bottom:4px">Find Us</div>
+          <div style="font-size:.85rem;color:var(--muted)">Malda, West Bengal<br/>India — 732101</div>
+        </div>
+      </div>
+
+      <!-- Form Side -->
+      <div class="form-card">
+        <h3>📩 Send a Message</h3>
+        <form action="/contact" method="POST">
+          <div class="form-row-2">
+            <div class="fg"><label>Your Name *</label><input type="text" name="name" placeholder="Aapka naam" required/></div>
+            <div class="fg"><label>Phone *</label><input type="tel" name="phone" placeholder="9XXXXXXXXX" required/></div>
+          </div>
+          <div class="fg"><label>Email</label><input type="email" name="email" placeholder="you@email.com"/></div>
+          <div class="fg">
+            <label>Enquiry Type</label>
+            <select name="type">
+              <option value="">Select type</option>
+              <option>Book a Shipment</option>
+              <option>Track my Parcel</option>
+              <option>Business Enquiry</option>
+              <option>Complaint</option>
+              <option>General Question</option>
+            </select>
+          </div>
+          <div class="fg"><label>Message *</label><textarea name="message" rows="5" placeholder="Apna sawaal ya parcel details likhein..." required></textarea></div>
+          <button type="submit" class="btn-primary btn-full">Send Message ✉️</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

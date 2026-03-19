@@ -1,0 +1,101 @@
+<%- include('../partials/head') %>
+<div class="admin-layout">
+  <%- include('../partials/admin-sidebar') %>
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>📊 Dashboard</h1>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="color:var(--muted);font-size:.85rem">Welcome, <strong><%= admin %></strong></span>
+        <a href="/admin/logout" class="btn-sm-danger">Logout</a>
+      </div>
+    </div>
+
+    <!-- 🔥 NEW ORDERS NEEDING APPROVAL -->
+    <% if (newOrders && newOrders.length > 0) { %>
+    <div class="new-orders-alert">
+      <div class="noa-header">
+        <h3>⏳ New Orders — Approval Chahiye <span class="noa-badge"><%= newOrders.length %> Pending</span></h3>
+        <a href="/admin/orders?approval=Awaiting+Approval" class="btn-sm">View All →</a>
+      </div>
+      <div class="noa-list">
+        <% newOrders.forEach(o => { %>
+        <div class="noa-item">
+          <div class="noa-info">
+            <div class="noa-ref"><%= o.reference %></div>
+            <div class="noa-route">📍 <%= o.senderCity %> → <%= o.receiverCity %>, <%= o.receiverState %> · <%= o.weight %>kg · <span class="pay-badge pay-<%= o.paymentMode.toLowerCase() %>"><%= o.paymentMode %></span></div>
+          </div>
+          <div class="noa-actions">
+            <span class="noa-time"><%= o.createdAt.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) %></span>
+            <a href="tel:<%= o.senderPhone %>" class="btn-sm">📞 <%= o.senderName %></a>
+            <a href="https://wa.me/91<%= o.senderPhone.replace(/\D/g,'') %>" target="_blank" class="btn-sm" style="color:#25D366">💬 WhatsApp</a>
+            <a href="/admin/orders/<%= o._id %>" class="btn-primary" style="font-size:.78rem;padding:6px 14px;border-radius:8px">Approve / Reject →</a>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(251,191,36,.12)">⏳</div>
+        <div class="sc-num" style="color:var(--gold)"><%= stats.awaitingApproval || 0 %></div>
+        <div class="sc-label">Awaiting Approval</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(249,115,22,.12)">📦</div>
+        <div class="sc-num"><%= stats.total || 0 %></div>
+        <div class="sc-label">Total Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(59,130,246,.12)">🚚</div>
+        <div class="sc-num"><%= stats.transit || 0 %></div>
+        <div class="sc-label">In Transit</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(34,197,94,.12)">✅</div>
+        <div class="sc-num"><%= stats.delivered || 0 %></div>
+        <div class="sc-label">Delivered</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(239,68,68,.1)">❌</div>
+        <div class="sc-num"><%= stats.rejected || 0 %></div>
+        <div class="sc-label">Rejected</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(168,85,247,.12)">💬</div>
+        <div class="sc-num"><%= stats.unread || 0 %></div>
+        <div class="sc-label">Unread Messages</div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="admin-card" style="margin-top:24px">
+      <div class="ac-header"><h3>Recent Orders</h3><a href="/admin/orders" class="btn-sm">View All →</a></div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Reference</th><th>Sender</th><th>Route</th><th>Weight</th><th>Approval</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>
+            <% if(recentOrders && recentOrders.length > 0) { %>
+              <% recentOrders.forEach(o => { %>
+              <tr>
+                <td><a href="/admin/orders/<%= o._id %>" class="table-link"><%= o.reference %></a></td>
+                <td><div style="font-weight:600;font-size:.85rem"><%= o.senderName %></div><div style="color:var(--muted);font-size:.75rem"><%= o.senderPhone %></div></td>
+                <td style="font-size:.82rem"><%= o.senderCity %> → <%= o.receiverCity %></td>
+                <td style="font-size:.85rem"><%= o.weight %> kg</td>
+                <td><span class="approval-badge approval-<%= o.approvalStatus.toLowerCase().replace(/\s+/g,'-') %>" style="font-size:.7rem;padding:3px 10px"><%= o.approvalStatus %></span></td>
+                <td><span class="status-badge status-<%= o.status.toLowerCase().replace(/\s+/g,'-') %>"><%= o.status %></span></td>
+                <td style="font-size:.78rem;color:var(--muted)"><%= o.createdAt.toLocaleDateString('en-IN') %></td>
+              </tr>
+              <% }) %>
+            <% } else { %>
+              <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px">No orders yet.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body></html>

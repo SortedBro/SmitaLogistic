@@ -1,0 +1,21 @@
+<%- include('../partials/head') %>
+
+<div class="admin-login-wrap">
+  <div class="admin-login-box">
+    <div class="admin-login-logo">Smita<span>Logistic</span></div>
+    <div class="admin-login-sub">Admin Panel</div>
+
+    <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
+      <div class="flash flash-error"><%= error[0] %></div>
+    <% } %>
+
+    <form action="/admin/login" method="POST">
+      <div class="fg"><label>Username</label><input type="text" name="username" placeholder="admin" required autofocus/></div>
+      <div class="fg"><label>Password</label><input type="password" name="password" placeholder="••••••••" required/></div>
+      <button type="submit" class="btn-primary btn-full" style="margin-top:8px">Login →</button>
+    </form>
+    <div style="text-align:center;margin-top:20px"><a href="/" style="color:var(--muted);font-size:.85rem">← Back to Website</a></div>
+  </div>
+</div>
+
+</body></html>

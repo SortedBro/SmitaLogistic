@@ -1,0 +1,149 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span> India's #1 Delivery Network</div>
+    <h1>Ship Parcels<br/>Anywhere in <em>India</em><br/>— Guaranteed</h1>
+    <p class="hero-desc">SmitaLogistic is a wrapper-type parcel service. We book & manage your deliveries through Delhivery's network — fast, tracked, and reliable.</p>
+    <div class="hero-btns">
+      <a href="/book" class="btn-primary">📦 Book a Shipment</a>
+      <a href="/track" class="btn-outline">🔍 Track My Parcel</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num"><%= (stats.totalOrders || 0) + 500 %><span>+</span></div>
+        <div class="stat-label">Parcels Shipped</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">18<span>K+</span></div>
+        <div class="stat-label">Pincodes Covered</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">99<span>%</span></div>
+        <div class="stat-label">On-Time Delivery</div>
+      </div>
+    </div>
+    <div class="delhivery-badge">🤝 Logistics by <strong>Delhivery One</strong> &nbsp;·&nbsp; Pan-India Coverage</div>
+  </div>
+</section>
+
+<!-- PINCODE CHECKER -->
+<section class="section-light" id="pincode">
+  <div class="section-center">
+    <div class="section-label">Serviceability Check</div>
+    <h2>Delivery Possible Kya?</h2>
+    <p class="section-sub">Pincode enter karo — turant check hoga Delhivery network se.</p>
+    <div class="pin-row">
+      <input type="number" id="pin-input" placeholder="6-digit pincode e.g. 400001" maxlength="6" oninput="this.value=this.value.slice(0,6)"/>
+      <button class="btn-primary" onclick="checkPin()">Check →</button>
+    </div>
+    <div id="pin-result" class="pin-result" style="display:none"></div>
+    <div class="quick-pins">
+      <span onclick="quickPin('732101')">📍 Malda 732101</span>
+      <span onclick="quickPin('400001')">🏙️ Mumbai 400001</span>
+      <span onclick="quickPin('110001')">🏛️ Delhi 110001</span>
+      <span onclick="quickPin('560001')">🌿 Bangalore 560001</span>
+      <span onclick="quickPin('700001')">🐟 Kolkata 700001</span>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section-dark">
+  <div class="container">
+    <div class="section-label">Our Services</div>
+    <h2>Delivery Solutions</h2>
+    <p class="section-sub">Har zaroorat ke liye sahi delivery option.</p>
+    <div class="grid-3">
+      <div class="card reveal">
+        <div class="card-icon">⚡</div>
+        <h3>Express Delivery</h3>
+        <p>Same-day ya next-day delivery. Urgent parcels ke liye perfect.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">🌏</div>
+        <h3>All-India Shipping</h3>
+        <p>Har pincode tak — metro, tier-2, aur rural areas. 3–7 din mein.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">📦</div>
+        <h3>Bulk & Business</h3>
+        <p>Regular shippers ke liye special rates aur business dashboard.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">🔒</div>
+        <h3>Insured Shipping</h3>
+        <p>Valuable items ke liye full insurance. Pickup se delivery tak protected.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">❄️</div>
+        <h3>Fragile Care</h3>
+        <p>Electronics aur breakable items ke liye special packaging & handling.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">↩️</div>
+        <h3>Return Management</h3>
+        <p>Easy reverse logistics. E-commerce returns ke liye ideal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section-light">
+  <div class="container">
+    <div class="section-label">Process</div>
+    <h2>Kaise Kaam Karta Hai</h2>
+    <p class="section-sub">Sirf 5 steps mein parcel book, pickup, aur deliver.</p>
+    <div class="steps-row">
+      <div class="step reveal"><div class="step-num">01</div><div class="step-icon">📝</div><h4>Book Online</h4><p>2 minute ka form. Sender aur receiver details daalo.</p></div>
+      <div class="step reveal"><div class="step-num">02</div><div class="step-icon">🚗</div><h4>Pickup</h4><p>Delhivery agent ghar aakar parcel uthayega.</p></div>
+      <div class="step reveal"><div class="step-num">03</div><div class="step-icon">🏭</div><h4>Sorting Hub</h4><p>Parcel AWB milega, dispatch hoga.</p></div>
+      <div class="step reveal"><div class="step-num">04</div><div class="step-icon">📍</div><h4>Live Track</h4><p>Real-time tracking. SMS + WhatsApp updates.</p></div>
+      <div class="step reveal"><div class="step-num">05</div><div class="step-icon">✅</div><h4>Delivered</h4><p>Photo confirmation + signature proof.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+  <div class="cta-content">
+    <h2>Ready to Ship?</h2>
+    <p>Ab SmitaLogistic ke through apna parcel bhejo — fast, safe, tracked.</p>
+    <div class="hero-btns" style="justify-content:center">
+      <a href="/book" class="btn-primary">📦 Book Now — Free Pickup</a>
+      <a href="/contact" class="btn-outline-white">📞 Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>
+
+<script>
+function checkPin(){
+  const pin = document.getElementById('pin-input').value.trim();
+  const res = document.getElementById('pin-result');
+  if(!pin||pin.length!==6){ showPinResult('error','⚠️ Valid 6-digit pincode daalo.'); return; }
+  showPinResult('loading','⏳ Checking Delhivery network...');
+  fetch(`/api/pincode?pin=${pin}`)
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.deliverable){
+        showPinResult('ok',`✅ <strong>${d.city}, ${d.state}</strong> — Delivery available! ${d.cod?'💵 COD':''}  ${d.prepaid?'💳 Prepaid':''}`);
+      } else {
+        showPinResult('error',`❌ Pincode ${pin} — Delivery abhi available nahi.`);
+      }
+    }).catch(()=>showPinResult('error','⚠️ Server error. Try again.'));
+}
+function showPinResult(type, html){
+  const el = document.getElementById('pin-result');
+  el.className = 'pin-result pin-'+type;
+  el.innerHTML = html;
+  el.style.display='block';
+}
+function quickPin(p){ document.getElementById('pin-input').value=p; checkPin(); }
+document.getElementById('pin-input').addEventListener('keypress',e=>{ if(e.key==='Enter') checkPin(); });
+</script>

@@ -1,0 +1,125 @@
+<%- include('../partials/head') %>
+
+<div class="admin-layout">
+  <%- include('../partials/admin-sidebar') %>
+  <main class="admin-main">
+
+    <div class="admin-topbar">
+      <h1>📦 All Orders</h1>
+      <a href="/book" target="_blank" class="btn-primary" style="font-size:.85rem;padding:9px 20px">+ New Order</a>
+    </div>
+
+    <!-- Filters -->
+    <form action="/admin/orders" method="GET" class="filter-bar">
+      <input type="text" name="search" placeholder="Search reference, AWB, name, pincode..."
+        value="<%= filter.search %>" class="filter-input"/>
+      <select name="status" class="filter-select" onchange="this.form.submit()">
+        <option value="all"   <%= filter.status==='all'     ?'selected':'' %>>All Status</option>
+        <option value="Pending"      <%= filter.status==='Pending'     ?'selected':'' %>>⏳ Pending</option>
+        <option value="Booked"       <%= filter.status==='Booked'      ?'selected':'' %>>✅ Booked</option>
+        <option value="Pickup Scheduled" <%= filter.status==='Pickup Scheduled'?'selected':'' %>>🚗 Pickup Scheduled</option>
+        <option value="In Transit"   <%= filter.status==='In Transit'  ?'selected':'' %>>🚚 In Transit</option>
+        <option value="Out for Delivery" <%= filter.status==='Out for Delivery'?'selected':'' %>>📍 Out for Delivery</option>
+        <option value="Delivered"    <%= filter.status==='Delivered'   ?'selected':'' %>>✅ Delivered</option>
+        <option value="Failed"       <%= filter.status==='Failed'      ?'selected':'' %>>❌ Failed</option>
+        <option value="Cancelled"    <%= filter.status==='Cancelled'   ?'selected':'' %>>🚫 Cancelled</option>
+      </select>
+      <button type="submit" class="btn-primary" style="font-size:.85rem;padding:9px 18px">Search</button>
+      <a href="/admin/orders" class="btn-sm">Clear</a>
+    </form>
+
+    <!-- Table -->
+    <div class="admin-card">
+      <div class="ac-header">
+        <span style="color:var(--muted);font-size:.85rem">
+          Showing <%= orders.length %> of <%= total %> orders
+        </span>
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr>
+            <th>Reference</th>
+            <th>AWB</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Destination</th>
+            <th>Weight</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr></thead>
+          <tbody>
+            <% if (orders.length > 0) { %>
+              <% orders.forEach(o => { %>
+              <tr>
+                <td><code style="font-size:.78rem;color:var(--accent2)"><%= o.reference %></code></td>
+                <td>
+                  <% if (o.waybill) { %>
+                    <code style="font-size:.78rem"><%= o.waybill %></code>
+                  <% } else { %>
+                    <span style="color:var(--muted);font-size:.78rem">—</span>
+                  <% } %>
+                </td>
+                <td>
+                  <div style="font-weight:600;font-size:.85rem"><%= o.senderName %></div>
+                  <div style="color:var(--muted);font-size:.75rem"><%= o.senderPhone %></div>
+                </td>
+                <td>
+                  <div style="font-weight:600;font-size:.85rem"><%= o.receiverName %></div>
+                  <div style="color:var(--muted);font-size:.75rem"><%= o.receiverPhone %></div>
+                </td>
+                <td>
+                  <div style="font-size:.85rem"><%= o.receiverCity %></div>
+                  <div style="color:var(--muted);font-size:.75rem"><%= o.receiverPin %></div>
+                </td>
+                <td style="font-size:.85rem"><%= o.weight %> kg</td>
+                <td>
+                  <span class="pay-badge pay-<%= o.paymentMode.toLowerCase() %>"><%= o.paymentMode %></span>
+                  <% if (o.paymentMode === 'COD') { %>
+                    <div style="font-size:.72rem;color:var(--muted)">₹<%= o.codAmount %></div>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="status-badge status-<%= o.status.toLowerCase().replace(/\s+/g,'-') %>">
+                    <%= o.status %>
+                  </span>
+                </td>
+                <td style="font-size:.78rem;color:var(--muted)">
+                  <%= o.createdAt.toLocaleDateString('en-IN') %>
+                </td>
+                <td>
+                  <a href="/admin/orders/<%= o._id %>" class="btn-sm">View</a>
+                </td>
+              </tr>
+              <% }) %>
+            <% } else { %>
+              <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:40px">
+                No orders found. <a href="/admin/orders" style="color:var(--accent)">Clear filters</a>
+              </td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <% if (totalPages > 1) { %>
+      <div class="pagination">
+        <% if (currentPage > 1) { %>
+          <a href="/admin/orders?page=<%= currentPage-1 %>&status=<%= filter.status %>&search=<%= filter.search %>" class="page-btn">← Prev</a>
+        <% } %>
+        <% for(let i=1; i<=totalPages; i++) { %>
+          <a href="/admin/orders?page=<%= i %>&status=<%= filter.status %>&search=<%= filter.search %>"
+            class="page-btn <%= i===currentPage?'page-active':'' %>"><%= i %></a>
+        <% } %>
+        <% if (currentPage < totalPages) { %>
+          <a href="/admin/orders?page=<%= currentPage+1 %>&status=<%= filter.status %>&search=<%= filter.search %>" class="page-btn">Next →</a>
+        <% } %>
+      </div>
+      <% } %>
+    </div>
+
+  </main>
+</div>
+
+</body></html>
