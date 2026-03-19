@@ -317,7 +317,6 @@ async function fetchRate() {
     document.getElementById('rb-pct-row').style.display = data.pctMargin > 0 ? 'flex' : 'none';
     document.getElementById('rb-pct').textContent      = data.pctMargin + '% = ₹' + data.pctAmount;
     document.getElementById('rb-total-margin').textContent = '₹' + data.totalMargin;
-    document.getElementById('rb-margin').textContent    = '₹' + data.margin;
     document.getElementById('rb-total').textContent     = '₹' + data.suggestedPrice;
 
     if (data.codCharge) {
