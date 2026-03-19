@@ -2,16 +2,11 @@
    SmitaLogistic — style.css
    ════════════════════════════════════════════ */
 
+/* Static vars — never change with theme */
 :root {
-  --bg      : #0a0d14;
-  --surface : #111520;
-  --card    : #161b2e;
-  --border  : #1e2740;
   --accent  : #f97316;
   --accent2 : #fb923c;
   --gold    : #fbbf24;
-  --text    : #e8ecf4;
-  --muted   : #8896b3;
   --green   : #22c55e;
   --blue    : #3b82f6;
   --red     : #ef4444;
@@ -699,4 +694,295 @@ footer { background: var(--surface); border-top: 1px solid var(--border); paddin
 }
 .margin-preview-table tbody tr:hover {
   background: rgba(255,255,255,.02);
+}
+
+/* ════════════════════════════════════════════
+   DARK / LIGHT MODE THEME SYSTEM
+   ════════════════════════════════════════════ */
+
+/* ── DARK MODE (default) ─────────────────── */
+:root,
+[data-theme="dark"] {
+  --bg      : #0a0d14;
+  --surface : #111520;
+  --card    : #161b2e;
+  --border  : #1e2740;
+  --text    : #e8ecf4;
+  --muted   : #8896b3;
+  --shadow  : rgba(0,0,0,.4);
+  --navbar-bg: rgba(10,13,20,.92);
+  --input-bg : #111520;
+  --hero-glow: rgba(249,115,22,.15);
+}
+
+/* ── LIGHT MODE ──────────────────────────── */
+[data-theme="light"] {
+  --bg      : #f4f6fb;
+  --surface : #ffffff;
+  --card    : #ffffff;
+  --border  : #e2e8f0;
+  --text    : #1a202c;
+  --muted   : #64748b;
+  --shadow  : rgba(0,0,0,.08);
+  --navbar-bg: rgba(255,255,255,.95);
+  --input-bg : #f8fafc;
+  --hero-glow: rgba(249,115,22,.08);
+}
+
+/* Smooth transition on theme change */
+*, *::before, *::after {
+  transition: background-color .25s ease,
+              border-color .25s ease,
+              color .15s ease,
+              box-shadow .25s ease !important;
+}
+/* But not animations */
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+@keyframes blink  { 0%,100%{opacity:1} 50%{opacity:.2} }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes spin   { to{transform:rotate(360deg)} }
+@keyframes pulse-gold { 0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.3)} 50%{box-shadow:0 0 0 6px rgba(251,191,36,.0)} }
+
+/* ── Light mode specific overrides ──────── */
+[data-theme="light"] body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+[data-theme="light"] .navbar {
+  background: var(--navbar-bg);
+  border-bottom-color: var(--border);
+  box-shadow: 0 1px 12px var(--shadow);
+}
+
+[data-theme="light"] .logo { color: var(--text); }
+[data-theme="light"] .nav-links a { color: var(--muted); }
+[data-theme="light"] .nav-links a:hover { color: var(--text); }
+
+[data-theme="light"] .mobile-nav {
+  background: var(--surface);
+  border-bottom-color: var(--border);
+}
+[data-theme="light"] .mobile-nav a { color: var(--text); }
+
+/* Hero */
+[data-theme="light"] .hero { background: linear-gradient(135deg, #fff8f3, #f4f6fb); }
+[data-theme="light"] .hero-glow {
+  background: radial-gradient(circle, rgba(249,115,22,.12) 0%, transparent 70%);
+}
+[data-theme="light"] .hero-desc { color: var(--muted); }
+[data-theme="light"] .delhivery-badge {
+  background: rgba(0,0,0,.04);
+  border-color: var(--border);
+}
+
+/* Cards */
+[data-theme="light"] .card {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 2px 12px var(--shadow);
+}
+[data-theme="light"] .card:hover {
+  border-color: rgba(249,115,22,.4);
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+/* Sections */
+[data-theme="light"] .section-dark  { background: #f4f6fb; }
+[data-theme="light"] .section-light {
+  background: #ffffff;
+  border-color: var(--border);
+}
+
+/* Page header */
+[data-theme="light"] .page-header {
+  background: #fff;
+  border-bottom-color: var(--border);
+}
+
+/* Form elements */
+[data-theme="light"] .fg input,
+[data-theme="light"] .fg select,
+[data-theme="light"] .fg textarea,
+[data-theme="light"] .pin-row input,
+[data-theme="light"] .track-input-wrap input,
+[data-theme="light"] .filter-input,
+[data-theme="light"] .filter-select {
+  background: var(--input-bg);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="light"] .fg input:focus,
+[data-theme="light"] .fg select:focus,
+[data-theme="light"] .fg textarea:focus { border-color: var(--accent); }
+
+/* Form cards */
+[data-theme="light"] .form-card,
+[data-theme="light"] .summary-card,
+[data-theme="light"] .contact-form-box {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 2px 12px var(--shadow);
+}
+
+/* Track card */
+[data-theme="light"] .track-card,
+[data-theme="light"] .result-card {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 2px 16px var(--shadow);
+}
+
+/* Contact */
+[data-theme="light"] .contact-item {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+/* Footer */
+[data-theme="light"] footer {
+  background: #fff;
+  border-top-color: var(--border);
+}
+[data-theme="light"] .footer-bottom {
+  border-top-color: var(--border);
+}
+
+/* Admin */
+[data-theme="light"] .admin-sidebar {
+  background: #fff;
+  border-right-color: var(--border);
+  box-shadow: 2px 0 12px var(--shadow);
+}
+[data-theme="light"] .admin-main { background: var(--bg); }
+[data-theme="light"] .admin-card {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+[data-theme="light"] .admin-table td  { border-bottom-color: var(--border); }
+[data-theme="light"] .admin-table tbody tr:hover { background: rgba(249,115,22,.04); }
+[data-theme="light"] .stat-card {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+/* Pins, quick tags */
+[data-theme="light"] .quick-pins span {
+  background: rgba(0,0,0,.04);
+  border-color: var(--border);
+}
+[data-theme="light"] .quick-pins span:hover {
+  border-color: var(--accent);
+  background: rgba(249,115,22,.08);
+}
+
+/* Approval boxes */
+[data-theme="light"] .approval-action-box {
+  background: linear-gradient(135deg, rgba(251,191,36,.07), rgba(249,115,22,.05));
+  border-color: rgba(251,191,36,.3);
+}
+[data-theme="light"] .approve-form-box {
+  background: rgba(34,197,94,.06);
+  border-color: rgba(34,197,94,.25);
+}
+[data-theme="light"] .reject-form-box {
+  background: rgba(239,68,68,.05);
+  border-color: rgba(239,68,68,.2);
+}
+[data-theme="light"] .cq-item {
+  background: rgba(0,0,0,.03);
+  border-color: var(--border);
+}
+
+/* Rate calc */
+[data-theme="light"] .rate-calc-box {
+  background: rgba(59,130,246,.04);
+  border-color: rgba(59,130,246,.2);
+}
+[data-theme="light"] .rb-row { border-bottom-color: rgba(59,130,246,.08); }
+
+/* Settings */
+[data-theme="light"] .formula-box {
+  background: rgba(59,130,246,.05);
+  border-color: rgba(59,130,246,.18);
+}
+[data-theme="light"] .margin-override-row {
+  background: rgba(0,0,0,.03);
+  border-color: var(--border);
+}
+[data-theme="light"] .mo-field input {
+  background: var(--input-bg);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Timeline */
+[data-theme="light"] .tl-line { background: var(--border); }
+[data-theme="light"] .tl-done .tl-line { background: rgba(34,197,94,.4); }
+
+/* Flash */
+[data-theme="light"] .flash-success { background: rgba(34,197,94,.08); }
+[data-theme="light"] .flash-error   { background: rgba(239,68,68,.07); }
+
+/* CTA Banner */
+[data-theme="light"] .cta-banner {
+  background: linear-gradient(135deg, rgba(249,115,22,.08), rgba(251,191,36,.06));
+}
+
+/* Admin login */
+[data-theme="light"] .admin-login-wrap { background: var(--bg); }
+[data-theme="light"] .admin-login-box {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 4px 24px var(--shadow);
+}
+
+/* ── THEME TOGGLE BUTTON ──────────────────── */
+.theme-toggle {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  transition: all .2s !important;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  transform: rotate(20deg) scale(1.08);
+  background: rgba(249,115,22,.1);
+}
+
+/* Show/hide icons based on theme */
+.theme-icon-dark,
+.theme-icon-light {
+  position: absolute;
+  transition: opacity .25s ease, transform .25s ease !important;
+}
+[data-theme="dark"]  .theme-icon-dark  { opacity: 1; transform: scale(1); }
+[data-theme="dark"]  .theme-icon-light { opacity: 0; transform: scale(0); }
+[data-theme="light"] .theme-icon-light { opacity: 1; transform: scale(1); }
+[data-theme="light"] .theme-icon-dark  { opacity: 0; transform: scale(0); }
+
+/* Admin sidebar theme toggle */
+.sidebar-theme-toggle {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  color: var(--muted); cursor: pointer;
+  font-size: .88rem; font-weight: 500;
+  border: none; background: none; width: 100%;
+  text-align: left; transition: all .2s !important;
+  margin-top: 4px;
+}
+.sidebar-theme-toggle:hover {
+  background: rgba(255,255,255,.05);
+  color: var(--text);
 }
