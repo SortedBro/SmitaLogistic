@@ -1,5 +1,12 @@
-<aside class="admin-sidebar">
-  <a href="/" class="admin-logo">Smita<span>Logistic</span><small>Admin Panel</small></a>
+<!-- Mobile overlay -->
+<div class="admin-overlay" id="admin-overlay" onclick="closeAdminNav()"></div>
+
+<aside class="admin-sidebar" id="admin-sidebar">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:8px">
+    <a href="/" class="admin-logo" style="padding:0;border:none;margin:0">Smita<span>Logistic</span><small>Admin Panel</small></a>
+    <!-- Close button — mobile only -->
+    <button onclick="closeAdminNav()" style="background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;display:none" id="sidebar-close">✕</button>
+  </div>
   <nav class="admin-nav">
     <a href="/admin"          class="admin-nav-link"><span>📊</span> Dashboard</a>
     <a href="/admin/orders"   class="admin-nav-link"><span>📦</span> All Orders</a>
@@ -7,37 +14,45 @@
     <a href="/admin/settings" class="admin-nav-link"><span>⚙️</span> Settings</a>
     <hr style="border-color:var(--border);margin:12px 0"/>
     <a href="/" class="admin-nav-link" target="_blank"><span>🌐</span> View Website</a>
-
-    <!-- Theme Toggle in sidebar -->
     <button class="sidebar-theme-toggle" onclick="toggleTheme()" id="sidebar-theme-btn">
       <span id="sidebar-theme-icon">🌙</span>
       <span id="sidebar-theme-label">Light Mode</span>
     </button>
-
     <a href="/admin/logout" class="admin-nav-link admin-nav-danger"><span>🚪</span> Logout</a>
   </nav>
 </aside>
 
 <script>
-// Update sidebar button label based on current theme
-(function updateSidebarBtn() {
+function openAdminNav() {
+  document.getElementById('admin-sidebar').classList.add('open');
+  document.getElementById('admin-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeAdminNav() {
+  document.getElementById('admin-sidebar').classList.remove('open');
+  document.getElementById('admin-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Show close button on mobile
+if (window.innerWidth <= 900) {
+  document.getElementById('sidebar-close').style.display = 'block';
+}
+
+// Update sidebar theme label
+(function() {
   const t     = localStorage.getItem('sl-theme') || 'dark';
   const icon  = document.getElementById('sidebar-theme-icon');
   const label = document.getElementById('sidebar-theme-label');
-  if (!icon || !label) return;
-  if (t === 'dark') {
-    icon.textContent  = '☀️';
-    label.textContent = 'Light Mode';
-  } else {
-    icon.textContent  = '🌙';
-    label.textContent = 'Dark Mode';
+  if (icon && label) {
+    icon.textContent  = t === 'dark' ? '☀️' : '🌙';
+    label.textContent = t === 'dark' ? 'Light Mode' : 'Dark Mode';
   }
 })();
 
-// Patch toggleTheme to also update sidebar button
-const _origToggle = window.toggleTheme;
+const _orig = window.toggleTheme;
 window.toggleTheme = function() {
-  if (_origToggle) _origToggle();
+  if (_orig) _orig();
   setTimeout(() => {
     const t     = localStorage.getItem('sl-theme') || 'dark';
     const icon  = document.getElementById('sidebar-theme-icon');

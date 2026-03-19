@@ -54,3 +54,19 @@ document.querySelectorAll('.admin-nav-link').forEach(a => {
     a.classList.add('active');
   }
 });
+
+// ── Admin Mobile Menu Button ───────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('mob-menu-btn');
+  if (btn) {
+    // Show on mobile
+    if (window.innerWidth <= 900) {
+      btn.style.display = 'flex';
+    }
+    window.addEventListener('resize', () => {
+      btn.style.display = window.innerWidth <= 900 ? 'flex' : 'none';
+      const close = document.getElementById('sidebar-close');
+      if (close) close.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+    });
+  }
+});

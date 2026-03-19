@@ -398,8 +398,55 @@ footer { background: var(--surface); border-top: 1px solid var(--border); paddin
 }
 @media (max-width: 900px) {
   .form-grid, .contact-grid { grid-template-columns: 1fr; }
+
+  /* Admin — sidebar becomes slide-out drawer */
   .admin-layout { grid-template-columns: 1fr; }
-  .admin-sidebar { display: none; }
+
+  .admin-sidebar {
+    display: flex !important;
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform .3s ease !important;
+    box-shadow: 4px 0 24px rgba(0,0,0,.3);
+  }
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Overlay behind sidebar */
+  .admin-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 199;
+    backdrop-filter: blur(2px);
+  }
+  .admin-overlay.open { display: block; }
+
+  /* Mobile topbar hamburger */
+  .admin-menu-btn {
+    display: flex !important;
+    align-items: center; justify-content: center;
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .admin-main { padding: 20px 16px; }
+  .admin-topbar { flex-wrap: wrap; gap: 10px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .order-detail-grid { grid-template-columns: 1fr; }
+  .noa-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .noa-actions { width: 100%; }
+  .noa-actions .btn-primary { width: 100%; justify-content: center; }
 }
 @media (max-width: 600px) {
   .nav-links, .btn-nav-track, .btn-nav-book { display: none; }
@@ -985,4 +1032,17 @@ footer { background: var(--surface); border-top: 1px solid var(--border); paddin
 .sidebar-theme-toggle:hover {
   background: rgba(255,255,255,.05);
   color: var(--text);
+}
+
+/* Admin menu button — hidden on desktop */
+.admin-menu-btn { display: none; }
+
+/* Mobile admin topbar fix */
+@media (max-width: 900px) {
+  .admin-topbar h1 { font-size: 1.2rem; }
+  .approval-forms { grid-template-columns: 1fr; }
+  .customer-quick { grid-template-columns: 1fr 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .table-wrap { font-size: .78rem; }
+  .admin-table th, .admin-table td { padding: 10px 10px; }
 }

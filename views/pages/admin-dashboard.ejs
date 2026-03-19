@@ -3,6 +3,7 @@
   <%- include('../partials/admin-sidebar') %>
   <main class="admin-main">
     <div class="admin-topbar">
+      <button class="admin-menu-btn" onclick="openAdminNav()" style="display:none" id="mob-menu-btn">☰</button>
       <h1>📊 Dashboard</h1>
       <div style="display:flex;align-items:center;gap:12px">
         <span style="color:var(--muted);font-size:.85rem">Welcome, <strong><%= admin %></strong></span>

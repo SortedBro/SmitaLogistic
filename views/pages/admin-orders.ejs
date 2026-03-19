@@ -1,125 +1,355 @@
 <%- include('../partials/head') %>
-
 <div class="admin-layout">
   <%- include('../partials/admin-sidebar') %>
   <main class="admin-main">
-
     <div class="admin-topbar">
-      <h1>📦 All Orders</h1>
-      <a href="/book" target="_blank" class="btn-primary" style="font-size:.85rem;padding:9px 20px">+ New Order</a>
+      <button class="admin-menu-btn" onclick="openAdminNav()" style="display:none" id="mob-menu-btn">☰</button>
+      <div>
+        <a href="/admin/orders" style="color:var(--muted);font-size:.85rem;text-decoration:none">← Back</a>
+        <h1 style="margin-top:6px">Order: <span style="color:var(--accent)"><%= order.reference %></span></h1>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <span class="approval-badge approval-<%= order.approvalStatus.toLowerCase().replace(/\s+/g,'-') %>">
+          <%if(order.approvalStatus==='Awaiting Approval'){%>⏳<%}%>
+          <%if(order.approvalStatus==='Approved'){%>✅<%}%>
+          <%if(order.approvalStatus==='Rejected'){%>❌<%}%>
+          <%= order.approvalStatus %>
+        </span>
+        <span class="status-badge status-<%= order.status.toLowerCase().replace(/\s+/g,'-') %>"><%= order.status %></span>
+      </div>
     </div>
 
-    <!-- Filters -->
-    <form action="/admin/orders" method="GET" class="filter-bar">
-      <input type="text" name="search" placeholder="Search reference, AWB, name, pincode..."
-        value="<%= filter.search %>" class="filter-input"/>
-      <select name="status" class="filter-select" onchange="this.form.submit()">
-        <option value="all"   <%= filter.status==='all'     ?'selected':'' %>>All Status</option>
-        <option value="Pending"      <%= filter.status==='Pending'     ?'selected':'' %>>⏳ Pending</option>
-        <option value="Booked"       <%= filter.status==='Booked'      ?'selected':'' %>>✅ Booked</option>
-        <option value="Pickup Scheduled" <%= filter.status==='Pickup Scheduled'?'selected':'' %>>🚗 Pickup Scheduled</option>
-        <option value="In Transit"   <%= filter.status==='In Transit'  ?'selected':'' %>>🚚 In Transit</option>
-        <option value="Out for Delivery" <%= filter.status==='Out for Delivery'?'selected':'' %>>📍 Out for Delivery</option>
-        <option value="Delivered"    <%= filter.status==='Delivered'   ?'selected':'' %>>✅ Delivered</option>
-        <option value="Failed"       <%= filter.status==='Failed'      ?'selected':'' %>>❌ Failed</option>
-        <option value="Cancelled"    <%= filter.status==='Cancelled'   ?'selected':'' %>>🚫 Cancelled</option>
-      </select>
-      <button type="submit" class="btn-primary" style="font-size:.85rem;padding:9px 18px">Search</button>
-      <a href="/admin/orders" class="btn-sm">Clear</a>
-    </form>
+    <%- include('../partials/flash') %>
 
-    <!-- Table -->
-    <div class="admin-card">
-      <div class="ac-header">
-        <span style="color:var(--muted);font-size:.85rem">
-          Showing <%= orders.length %> of <%= total %> orders
-        </span>
-      </div>
-      <div class="table-wrap">
-        <table class="admin-table">
-          <thead><tr>
-            <th>Reference</th>
-            <th>AWB</th>
-            <th>Sender</th>
-            <th>Receiver</th>
-            <th>Destination</th>
-            <th>Weight</th>
-            <th>Payment</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Action</th>
-          </tr></thead>
-          <tbody>
-            <% if (orders.length > 0) { %>
-              <% orders.forEach(o => { %>
-              <tr>
-                <td><code style="font-size:.78rem;color:var(--accent2)"><%= o.reference %></code></td>
-                <td>
-                  <% if (o.waybill) { %>
-                    <code style="font-size:.78rem"><%= o.waybill %></code>
-                  <% } else { %>
-                    <span style="color:var(--muted);font-size:.78rem">—</span>
-                  <% } %>
-                </td>
-                <td>
-                  <div style="font-weight:600;font-size:.85rem"><%= o.senderName %></div>
-                  <div style="color:var(--muted);font-size:.75rem"><%= o.senderPhone %></div>
-                </td>
-                <td>
-                  <div style="font-weight:600;font-size:.85rem"><%= o.receiverName %></div>
-                  <div style="color:var(--muted);font-size:.75rem"><%= o.receiverPhone %></div>
-                </td>
-                <td>
-                  <div style="font-size:.85rem"><%= o.receiverCity %></div>
-                  <div style="color:var(--muted);font-size:.75rem"><%= o.receiverPin %></div>
-                </td>
-                <td style="font-size:.85rem"><%= o.weight %> kg</td>
-                <td>
-                  <span class="pay-badge pay-<%= o.paymentMode.toLowerCase() %>"><%= o.paymentMode %></span>
-                  <% if (o.paymentMode === 'COD') { %>
-                    <div style="font-size:.72rem;color:var(--muted)">₹<%= o.codAmount %></div>
-                  <% } %>
-                </td>
-                <td>
-                  <span class="status-badge status-<%= o.status.toLowerCase().replace(/\s+/g,'-') %>">
-                    <%= o.status %>
-                  </span>
-                </td>
-                <td style="font-size:.78rem;color:var(--muted)">
-                  <%= o.createdAt.toLocaleDateString('en-IN') %>
-                </td>
-                <td>
-                  <a href="/admin/orders/<%= o._id %>" class="btn-sm">View</a>
-                </td>
-              </tr>
-              <% }) %>
-            <% } else { %>
-              <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:40px">
-                No orders found. <a href="/admin/orders" style="color:var(--accent)">Clear filters</a>
-              </td></tr>
-            <% } %>
-          </tbody>
-        </table>
+    <% if (order.approvalStatus === 'Awaiting Approval') { %>
+    <div class="approval-action-box">
+      <div class="aab-header">
+        <div class="aab-icon">📋</div>
+        <div>
+          <div class="aab-title">Naya Order — Tumhari Approval Chahiye</div>
+          <div class="aab-sub">Niche rate dekho → Customer se call karo → Price negotiate karo → Approve ya Reject karo</div>
+        </div>
       </div>
 
-      <!-- Pagination -->
-      <% if (totalPages > 1) { %>
-      <div class="pagination">
-        <% if (currentPage > 1) { %>
-          <a href="/admin/orders?page=<%= currentPage-1 %>&status=<%= filter.status %>&search=<%= filter.search %>" class="page-btn">← Prev</a>
-        <% } %>
-        <% for(let i=1; i<=totalPages; i++) { %>
-          <a href="/admin/orders?page=<%= i %>&status=<%= filter.status %>&search=<%= filter.search %>"
-            class="page-btn <%= i===currentPage?'page-active':'' %>"><%= i %></a>
-        <% } %>
-        <% if (currentPage < totalPages) { %>
-          <a href="/admin/orders?page=<%= currentPage+1 %>&status=<%= filter.status %>&search=<%= filter.search %>" class="page-btn">Next →</a>
-        <% } %>
+      <!-- Customer Quick Info -->
+      <div class="customer-quick">
+        <div class="cq-item"><span>👤 Sender</span><strong><%= order.senderName %></strong></div>
+        <div class="cq-item"><span>📞 Phone</span><strong><a href="tel:<%= order.senderPhone %>" style="color:var(--accent2)"><%= order.senderPhone %></a></strong></div>
+        <div class="cq-item"><span>💬 WhatsApp</span><strong><a href="https://wa.me/91<%= order.senderPhone.replace(/\D/g,'') %>" target="_blank" style="color:#25D366">Chat →</a></strong></div>
+        <div class="cq-item"><span>📦 Weight</span><strong><%= order.weight %> kg</strong></div>
+        <div class="cq-item"><span>📍 Route</span><strong><%= order.senderCity %> → <%= order.receiverCity %></strong></div>
+        <div class="cq-item"><span>💳 Mode</span><strong><span class="pay-badge pay-<%= order.paymentMode.toLowerCase() %>"><%= order.paymentMode %></span></strong></div>
       </div>
-      <% } %>
+
+      <!-- ══ RATE CALCULATOR BOX ══ -->
+      <div class="rate-calc-box" id="rate-box">
+        <div class="rate-calc-header">
+          <div style="font-family:var(--fh);font-weight:700;font-size:1rem">💰 Shipping Rate Calculator</div>
+          <button class="btn-sm" onclick="fetchRate()" id="calc-btn">Calculate Rate →</button>
+        </div>
+
+        <!-- Per-order margin override -->
+        <div class="margin-override-row">
+          <div class="mo-label">Override Margin for This Order:</div>
+          <div class="mo-inputs">
+            <div class="mo-field">
+              <label>Fixed (₹)</label>
+              <input type="number" id="ov-fixed" placeholder="e.g. 80" min="0" oninput="fetchRate()"/>
+            </div>
+            <div class="mo-field">
+              <label>Percentage (%)</label>
+              <input type="number" id="ov-pct" placeholder="e.g. 15" min="0" max="200" step="0.5" oninput="fetchRate()"/>
+            </div>
+            <div class="mo-hint">Leave blank = use global settings</div>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="rate-loading" style="display:none;text-align:center;padding:20px;color:var(--muted)">
+          ⏳ Delhivery se rate fetch ho raha hai...
+        </div>
+
+        <!-- Rate Result -->
+        <div id="rate-result" style="display:none">
+          <div class="rate-breakdown">
+            <div class="rb-row">
+              <span>📦 Billable Weight</span>
+              <strong id="rb-weight">—</strong>
+            </div>
+            <div class="rb-row">
+              <span>🚚 Delhivery Charge</span>
+              <strong id="rb-delhivery" style="color:var(--blue)">—</strong>
+            </div>
+            <div class="rb-row">
+              <span>📌 Fixed Margin</span>
+              <strong id="rb-fixed" style="color:var(--gold)">—</strong>
+            </div>
+            <div class="rb-row" id="rb-pct-row" style="display:none">
+              <span>📊 Percentage Margin</span>
+              <strong id="rb-pct" style="color:var(--gold)">—</strong>
+            </div>
+            <div class="rb-row">
+              <span>💼 Total Margin (Profit)</span>
+              <strong id="rb-total-margin" style="color:var(--green)">—</strong>
+            </div>
+            <div id="rb-cod-row" class="rb-row" style="display:none">
+              <span>💵 COD Charge</span>
+              <strong id="rb-cod" style="color:var(--purple)">—</strong>
+            </div>
+            <div class="rb-row rb-total">
+              <span>✅ Customer se Lo (Suggested)</span>
+              <strong id="rb-total" style="color:var(--accent);font-size:1.3rem">—</strong>
+            </div>
+          </div>
+          <div id="rate-note" style="font-size:.75rem;color:var(--muted);margin-top:8px;padding:0 4px"></div>
+        </div>
+      </div>
+
+      <!-- Approve & Reject Forms -->
+      <div class="approval-forms">
+        <div class="approve-form-box">
+          <h3>✅ Approve Order</h3>
+          <p style="color:var(--muted);font-size:.83rem;margin-bottom:14px">
+            Customer se payment confirm karo, final price daalo.<br/>
+            <strong style="color:var(--text)">Auto:</strong> Delhivery AWB + Pickup + WhatsApp
+          </p>
+          <form action="/admin/orders/<%= order._id %>/approve" method="POST">
+            <div class="fg">
+              <label>Final Price (₹) * <span id="price-hint" style="color:var(--accent);font-weight:600;font-size:.8rem"></span></label>
+              <input type="number" name="finalPrice" id="final-price-input"
+                placeholder="Calculator se suggested price aayega ↑" min="0" required
+                style="font-size:1.2rem;font-weight:700;color:var(--accent)"/>
+            </div>
+            <div class="fg">
+              <label>Admin Note (Optional)</label>
+              <input type="text" name="adminNote" placeholder="e.g. Customer ne ₹200 mein agree kiya"/>
+            </div>
+            <button type="submit" class="btn-approve"
+              onclick="return confirm('Approve karein? AWB banegi aur customer ko WhatsApp jayega.')">
+              ✅ Approve & Book Shipment
+            </button>
+          </form>
+        </div>
+
+        <div class="reject-form-box">
+          <h3>❌ Reject Order</h3>
+          <p style="color:var(--muted);font-size:.83rem;margin-bottom:14px">
+            Customer ko rejection WhatsApp automatically jayega.
+          </p>
+          <form action="/admin/orders/<%= order._id %>/reject" method="POST">
+            <div class="fg">
+              <label>Rejection Reason *</label>
+              <select name="rejectionReason" required>
+                <option value="">Select reason...</option>
+                <option value="Customer ne price agree nahi kiya">💰 Price agree nahi hua</option>
+                <option value="Delivery address serviceable nahi hai">📍 Address serviceable nahi</option>
+                <option value="Parcel weight limit exceed karta hai">⚖️ Weight limit exceed</option>
+                <option value="Customer reach nahi ho raha">📵 Customer unreachable</option>
+                <option value="Customer ne cancel kar diya">🚫 Customer ne cancel kiya</option>
+                <option value="Duplicate order hai">🔄 Duplicate order</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-reject"
+              onclick="return confirm('Reject karein? Customer ko WhatsApp jayega.')">
+              ❌ Reject & Notify Customer
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
+    <% if(order.approvalStatus==='Approved') { %>
+    <div class="approved-info-box">
+      <div style="font-size:1.3rem">✅ Order Approved</div>
+      <div style="font-size:.85rem;color:var(--muted);margin-top:4px">
+        <%= order.approvedAt ? new Date(order.approvedAt).toLocaleString('en-IN') : '' %>
+        <% if(order.finalPrice){ %> · Final Price: <strong style="color:var(--accent)">₹<%= order.finalPrice %></strong><% } %>
+        <% if(order.waybill){ %> · AWB: <strong><%= order.waybill %></strong><% } %>
+        <% if(order.notifiedCustomer){ %> · <span style="color:#25D366">📱 WhatsApp Sent</span><% } %>
+      </div>
+      <% if(order.adminNote){ %><div style="margin-top:6px;font-size:.82rem;color:var(--muted)">Note: <%= order.adminNote %></div><% } %>
+    </div>
+    <% } %>
+
+    <% if(order.approvalStatus==='Rejected') { %>
+    <div class="rejected-info-box">
+      <div style="font-size:1.3rem">❌ Order Rejected</div>
+      <div style="font-size:.85rem;color:var(--muted);margin-top:4px">
+        <%= order.rejectedAt ? new Date(order.rejectedAt).toLocaleString('en-IN') : '' %>
+        <% if(order.notifiedCustomer){ %> · <span style="color:#25D366">📱 WhatsApp Sent</span><% } %>
+      </div>
+      <% if(order.rejectionReason){ %><div style="margin-top:6px;font-size:.85rem">Reason: <%= order.rejectionReason %></div><% } %>
+    </div>
+    <% } %>
+
+    <!-- Order Details Grid -->
+    <div class="order-detail-grid">
+      <div>
+        <div class="admin-card">
+          <div class="ac-header">
+            <h3>📤 Sender</h3>
+            <a href="tel:<%= order.senderPhone %>" class="btn-sm">📞 Call</a>
+          </div>
+          <div class="detail-rows">
+            <div class="dr"><span>Name</span><strong><%= order.senderName %></strong></div>
+            <div class="dr"><span>Phone</span><strong><a href="tel:<%= order.senderPhone %>"><%= order.senderPhone %></a></strong></div>
+            <div class="dr"><span>Address</span><strong><%= order.senderAddress %></strong></div>
+            <div class="dr"><span>City/Pin</span><strong><%= order.senderCity %> — <%= order.senderPin %></strong></div>
+          </div>
+        </div>
+
+        <div class="admin-card" style="margin-top:16px">
+          <div class="ac-header"><h3>📥 Receiver</h3></div>
+          <div class="detail-rows">
+            <div class="dr"><span>Name</span><strong><%= order.receiverName %></strong></div>
+            <div class="dr"><span>Phone</span><strong><%= order.receiverPhone %></strong></div>
+            <div class="dr"><span>Address</span><strong><%= order.receiverAddress %></strong></div>
+            <div class="dr"><span>City/State</span><strong><%= order.receiverCity %>, <%= order.receiverState %></strong></div>
+            <div class="dr"><span>Pincode</span><strong><%= order.receiverPin %></strong></div>
+          </div>
+        </div>
+
+        <div class="admin-card" style="margin-top:16px">
+          <div class="ac-header"><h3>📦 Parcel</h3></div>
+          <div class="detail-rows">
+            <div class="dr"><span>Item</span><strong><%= order.productDesc %></strong></div>
+            <div class="dr"><span>Weight</span><strong><%= order.weight %> kg</strong></div>
+            <div class="dr"><span>Dimensions</span><strong><%= order.length %>×<%= order.breadth %>×<%= order.height %> cm</strong></div>
+            <div class="dr"><span>Vol. Weight</span><strong><%= ((order.length*order.breadth*order.height)/5000).toFixed(2) %> kg</strong></div>
+            <div class="dr"><span>Declared Value</span><strong>₹<%= order.declaredValue %></strong></div>
+            <div class="dr"><span>Payment</span><strong>
+              <span class="pay-badge pay-<%= order.paymentMode.toLowerCase() %>"><%= order.paymentMode %></span>
+              <%if(order.paymentMode==='COD'){%> ₹<%= order.codAmount %><%}%>
+            </strong></div>
+            <%if(order.finalPrice){%>
+            <div class="dr"><span>✅ Final Price</span><strong style="color:var(--accent);font-size:1.1rem">₹<%= order.finalPrice %></strong></div>
+            <%}%>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="admin-card">
+          <div class="ac-header"><h3>🔍 Tracking</h3></div>
+          <div class="detail-rows">
+            <div class="dr"><span>Reference</span><code><%= order.reference %></code></div>
+            <div class="dr"><span>AWB</span>
+              <%if(order.waybill){%><code style="color:var(--accent)"><%= order.waybill %></code>
+              <%}else{%><span style="color:var(--muted)">Approval ke baad milega</span><%}%>
+            </div>
+            <div class="dr"><span>Booked At</span><strong><%= order.createdAt.toLocaleString('en-IN') %></strong></div>
+            <div class="dr"><span>WhatsApp</span><strong><%= order.notifiedCustomer?'✅ Sent':'⏳ Pending' %></strong></div>
+          </div>
+          <%if(order.waybill){%>
+          <div style="padding:12px 16px">
+            <a href="/track?q=<%= order.waybill %>" target="_blank" class="btn-outline btn-full">🔍 Live Track</a>
+          </div>
+          <%}%>
+        </div>
+
+        <%if(order.approvalStatus==='Approved'){%>
+        <div class="admin-card" style="margin-top:16px">
+          <div class="ac-header"><h3>⚙️ Update Status</h3></div>
+          <form action="/admin/orders/<%= order._id %>/status" method="POST" style="padding:16px">
+            <div class="fg"><label>AWB Number</label>
+              <input type="text" name="waybill" value="<%= order.waybill||'' %>" placeholder="Delhivery AWB"/>
+            </div>
+            <div class="fg"><label>Status</label>
+              <select name="status">
+                <%['Booked','Pickup Scheduled','In Transit','Out for Delivery','Delivered','Failed','Cancelled'].forEach(s=>{%>
+                  <option value="<%= s %>" <%=order.status===s?'selected':''%>><%= s %></option>
+                <%})%>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary btn-full">Update Status</button>
+          </form>
+        </div>
+        <%}%>
+
+        <div class="admin-card admin-card-danger" style="margin-top:16px">
+          <div class="ac-header"><h3>⚠️ Danger Zone</h3></div>
+          <div style="padding:16px">
+            <form action="/admin/orders/<%= order._id %>/delete" method="POST"
+              onsubmit="return confirm('Delete? Permanent hai.')">
+              <button type="submit" class="btn-danger btn-full">🗑️ Delete Order</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
 
   </main>
 </div>
+
+<script>
+const ORDER_ID = '<%= order._id %>';
+
+// Auto fetch rate when page loads (if awaiting approval)
+<% if(order.approvalStatus === 'Awaiting Approval') { %>
+window.addEventListener('load', () => fetchRate());
+<% } %>
+
+async function fetchRate() {
+  const btn     = document.getElementById('calc-btn');
+  const loading = document.getElementById('rate-loading');
+  const result  = document.getElementById('rate-result');
+
+  btn.textContent = 'Calculating...';
+  btn.disabled    = true;
+  loading.style.display = 'block';
+  result.style.display  = 'none';
+
+  try {
+    const ovFixed = document.getElementById('ov-fixed')?.value || '';
+    const ovPct   = document.getElementById('ov-pct')?.value   || '';
+    const params  = new URLSearchParams();
+    if (ovFixed) params.set('fixedMargin', ovFixed);
+    if (ovPct)   params.set('pctMargin',   ovPct);
+    const r    = await fetch(`/admin/orders/${ORDER_ID}/rate?${params.toString()}`);
+    const data = await r.json();
+
+    if (!data.success) throw new Error(data.error || 'Rate fetch failed');
+
+    // Fill in values
+    document.getElementById('rb-weight').textContent    = data.billableWeight + ' kg';
+    document.getElementById('rb-delhivery').textContent = '₹' + data.delhiveryCost;
+    document.getElementById('rb-fixed').textContent    = '₹' + data.fixedMargin;
+    document.getElementById('rb-pct-row').style.display = data.pctMargin > 0 ? 'flex' : 'none';
+    document.getElementById('rb-pct').textContent      = data.pctMargin + '% = ₹' + data.pctAmount;
+    document.getElementById('rb-total-margin').textContent = '₹' + data.totalMargin;
+    document.getElementById('rb-total').textContent     = '₹' + data.suggestedPrice;
+
+    if (data.codCharge) {
+      document.getElementById('rb-cod-row').style.display = 'flex';
+      document.getElementById('rb-cod').textContent = '₹' + data.codCharge;
+    }
+
+    // Auto-fill the final price input with suggested
+    const inp = document.getElementById('final-price-input');
+    if (inp && !inp.value) {
+      inp.value = data.suggestedPrice;
+    }
+    document.getElementById('price-hint').textContent = `(Suggested: ₹${data.suggestedPrice})`;
+
+    // Note
+    const note = document.getElementById('rate-note');
+    note.textContent = data.isFallback
+      ? '⚠️ Approximate rate (offline chart se). Exact rate ke liye Delhivery wallet recharge karo.'
+      : '✅ Delhivery ka actual live rate.';
+
+    loading.style.display = 'none';
+    result.style.display  = 'block';
+
+  } catch (err) {
+    loading.style.display = 'none';
+    loading.textContent   = '⚠️ Rate fetch nahi hua: ' + err.message;
+    loading.style.display = 'block';
+  }
+
+  btn.textContent = 'Recalculate';
+  btn.disabled    = false;
+}
+</script>
 
 </body></html>
