@@ -208,3 +208,24 @@ router.get("/orders/:id/rate", adminAuth, async (req, res) => {
 });
 
 module.exports = router;
+
+// ── EDIT ORDER ADDRESS (before approve) ───────
+router.post('/orders/:id/edit-address', adminAuth, async (req, res) => {
+  try {
+    const {
+      senderName, senderPhone, senderAddress, senderCity, senderPin,
+      receiverName, receiverPhone, receiverAddress, receiverCity, receiverState, receiverPin
+    } = req.body;
+
+    await Order.findByIdAndUpdate(req.params.id, {
+      senderName, senderPhone, senderAddress, senderCity, senderPin,
+      receiverName, receiverPhone, receiverAddress, receiverCity, receiverState, receiverPin
+    });
+
+    req.flash('success', '✅ Address update ho gaya! Ab approve karo.');
+    res.redirect(`/admin/orders/${req.params.id}`);
+  } catch (err) {
+    req.flash('error', err.message);
+    res.redirect(`/admin/orders/${req.params.id}`);
+  }
+});

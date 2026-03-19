@@ -3,6 +3,7 @@
   <%- include('../partials/admin-sidebar') %>
   <main class="admin-main">
     <div class="admin-topbar">
+      <button class="admin-menu-btn" onclick="openAdminNav()" style="display:none" id="mob-menu-btn">☰</button>
       <div>
         <a href="/admin/orders" style="color:var(--muted);font-size:.85rem;text-decoration:none">← Back</a>
         <h1 style="margin-top:6px">Order: <span style="color:var(--accent)"><%= order.reference %></span></h1>
@@ -101,6 +102,86 @@
             </div>
           </div>
           <div id="rate-note" style="font-size:.75rem;color:var(--muted);margin-top:8px;padding:0 4px"></div>
+        </div>
+      </div>
+
+      <!-- ══ ADDRESS CHECK & EDIT ══ -->
+      <div class="address-edit-box" id="addr-box">
+        <div class="addr-edit-header">
+          <div>
+            <div style="font-family:var(--fh);font-weight:700;font-size:1rem">📍 Address Check & Edit</div>
+            <div style="font-size:.8rem;color:var(--muted);margin-top:2px">Approve se pehle address verify karo — galti ho to seedha yahan edit karo</div>
+          </div>
+          <button class="btn-sm" onclick="toggleAddrEdit()" id="addr-toggle-btn">✏️ Edit Address</button>
+        </div>
+
+        <!-- VIEW MODE — just show addresses -->
+        <div id="addr-view">
+          <div class="addr-view-grid">
+            <div class="addr-view-card">
+              <div class="addr-view-label">📤 Sender</div>
+              <div class="addr-view-name" id="view-sname"><%= order.senderName %></div>
+              <div class="addr-view-phone" id="view-sphone"><%= order.senderPhone %></div>
+              <div class="addr-view-addr" id="view-saddr"><%= order.senderAddress %></div>
+              <div class="addr-view-city" id="view-scity"><%= order.senderCity %> — <%= order.senderPin %></div>
+            </div>
+            <div class="addr-view-card">
+              <div class="addr-view-label">📥 Receiver</div>
+              <div class="addr-view-name" id="view-rname"><%= order.receiverName %></div>
+              <div class="addr-view-phone" id="view-rphone"><%= order.receiverPhone %></div>
+              <div class="addr-view-addr" id="view-raddr"><%= order.receiverAddress %></div>
+              <div class="addr-view-city" id="view-rcity"><%= order.receiverCity %>, <%= order.receiverState %> — <%= order.receiverPin %></div>
+            </div>
+          </div>
+          <div class="addr-ok-row">
+            <span style="color:var(--green);font-size:.85rem;font-weight:600">✅ Address sahi lagta hai?</span>
+            <span style="color:var(--muted);font-size:.8rem">Niche approve karo. Galti hai to "Edit Address" click karo.</span>
+          </div>
+        </div>
+
+        <!-- EDIT MODE — form to fix address -->
+        <div id="addr-edit" style="display:none">
+          <form action="/admin/orders/<%= order._id %>/edit-address" method="POST">
+            <div class="addr-edit-sections">
+
+              <!-- Sender -->
+              <div class="addr-section">
+                <div class="addr-section-title">📤 Sender Details</div>
+                <div class="form-row-2">
+                  <div class="fg"><label>Name</label><input type="text" name="senderName" value="<%= order.senderName %>" required/></div>
+                  <div class="fg"><label>Phone</label><input type="tel" name="senderPhone" value="<%= order.senderPhone %>" maxlength="10" required/></div>
+                </div>
+                <div class="fg"><label>Full Address</label><input type="text" name="senderAddress" value="<%= order.senderAddress %>" required/></div>
+                <div class="form-row-2">
+                  <div class="fg"><label>City</label><input type="text" name="senderCity" value="<%= order.senderCity %>"/></div>
+                  <div class="fg"><label>Pincode</label><input type="number" name="senderPin" value="<%= order.senderPin %>" maxlength="6" required/></div>
+                </div>
+              </div>
+
+              <!-- Receiver -->
+              <div class="addr-section">
+                <div class="addr-section-title">📥 Receiver Details</div>
+                <div class="form-row-2">
+                  <div class="fg"><label>Name</label><input type="text" name="receiverName" value="<%= order.receiverName %>" required/></div>
+                  <div class="fg"><label>Phone</label><input type="tel" name="receiverPhone" value="<%= order.receiverPhone %>" maxlength="10" required/></div>
+                </div>
+                <div class="fg"><label>Full Address</label><input type="text" name="receiverAddress" value="<%= order.receiverAddress %>" required/></div>
+                <div class="form-row-2">
+                  <div class="fg"><label>City</label><input type="text" name="receiverCity" value="<%= order.receiverCity %>" required/></div>
+                  <div class="fg"><label>State</label><input type="text" name="receiverState" value="<%= order.receiverState %>" required/></div>
+                </div>
+                <div class="fg">
+                  <label>Pincode <span id="pin-check-badge"></span></label>
+                  <input type="number" name="receiverPin" id="edit-recv-pin" value="<%= order.receiverPin %>" maxlength="6" required oninput="checkEditPin(this.value)"/>
+                </div>
+              </div>
+
+            </div>
+            <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+              <button type="submit" class="btn-primary" style="border-radius:10px;padding:12px 24px">💾 Save Address Changes</button>
+              <button type="button" class="btn-outline" style="border-radius:10px;padding:12px 20px" onclick="toggleAddrEdit()">Cancel</button>
+            </div>
+          </form>
         </div>
       </div>
 
@@ -348,6 +429,54 @@ async function fetchRate() {
 
   btn.textContent = 'Recalculate';
   btn.disabled    = false;
+}
+
+// ── Address Edit Toggle ───────────────────────
+function toggleAddrEdit() {
+  const view   = document.getElementById('addr-view');
+  const edit   = document.getElementById('addr-edit');
+  const btn    = document.getElementById('addr-toggle-btn');
+  const isEdit = edit.style.display !== 'none';
+
+  if (isEdit) {
+    // Switch to view mode
+    view.style.display = 'block';
+    edit.style.display = 'none';
+    btn.textContent    = '✏️ Edit Address';
+    btn.style.color    = '';
+  } else {
+    // Switch to edit mode
+    view.style.display = 'none';
+    edit.style.display = 'block';
+    btn.textContent    = '👁 View Mode';
+    btn.style.color    = 'var(--accent)';
+  }
+}
+
+// ── Live pincode check in edit form ──────────
+let pinTimer2;
+function checkEditPin(val) {
+  clearTimeout(pinTimer2);
+  const badge = document.getElementById('pin-check-badge');
+  if (!badge) return;
+  if (val.length === 6) {
+    badge.textContent  = '⏳';
+    badge.className    = 'badge-loading';
+    pinTimer2 = setTimeout(() => {
+      fetch(`/api/pincode?pin=${val}`)
+        .then(r => r.json())
+        .then(d => {
+          badge.textContent = d.deliverable
+            ? `✅ ${d.city}, ${d.state}`
+            : '❌ Not serviceable';
+          badge.className = d.deliverable ? 'badge-ok' : 'badge-err';
+        })
+        .catch(() => { badge.textContent = '⚠️'; });
+    }, 600);
+  } else {
+    badge.textContent = '';
+    badge.className   = '';
+  }
 }
 </script>
 
